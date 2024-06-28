@@ -17,6 +17,7 @@ resource "aws_subnet" "web" {
 
 resource "aws_route_table" "web" {
   vpc_id = aws_vpc.main.id
+  tags   = local.web_rt_tags
 
   route {
     cidr_block                = var.default_vpc_cidr
