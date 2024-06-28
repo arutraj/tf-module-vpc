@@ -44,5 +44,38 @@ resource "aws_route" "default-vpc" {
   route_table_id            = var.default_vpc_rt
   destination_cidr_block    = var.vpc_cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.main.id
+}
 
+
+resource "aws_security_group" "main" {
+  name        = "test-${var.env}"
+  description = "test-${var.env}"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "SSH Port"
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+}
+
+resource "aws_instance" "web" {
+  ami                    = ""
+  instance_type          = "t3.micro"
+  vpc_security_group_ids = [aws_security_group.main.id]
+  subnet_id              = aws_subnet.app.*.id[0]
+
+  tags = {
+    Name = "test"
+  }
 }
