@@ -17,7 +17,6 @@ resource "aws_subnet" "app" {
   cidr_block        = var.app_subnet_cidr[count.index]
   tags              = local.app_subnet_tags
   availability_zone = var.azs[count.index]
-
 }
 
 resource "aws_subnet" "db" {
@@ -26,6 +25,11 @@ resource "aws_subnet" "db" {
   cidr_block        = var.db_subnet_cidr[count.index]
   tags              = local.db_subnet_tags
   availability_zone = var.azs[count.index]
+}
 
+resource "aws_vpc_peering_connection" "main" {
+  peer_owner_id = data.aws_caller_identity.current.account_id
+  peer_vpc_id   = var.default_vpc_id
+  vpc_id        = aws_vpc.main.id
 }
 
