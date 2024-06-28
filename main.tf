@@ -47,6 +47,7 @@ resource "aws_subnet" "app" {
 
 resource "aws_route_table" "app" {
   vpc_id = aws_vpc.main.id
+  tags   = local.app_rt_tags
 
   route {
     cidr_block                = var.default_vpc_cidr
@@ -70,6 +71,7 @@ resource "aws_subnet" "db" {
 
 resource "aws_route_table" "db" {
   vpc_id = aws_vpc.main.id
+  tags   = local.db_rt_tags
 
   route {
     cidr_block                = var.default_vpc_cidr
