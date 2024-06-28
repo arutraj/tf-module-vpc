@@ -9,6 +9,7 @@ locals {
   app_rt_tags     = merge(local.tags, { Name = "${var.env}-app-rt" })
   db_rt_tags      = merge(local.tags, { Name = "${var.env}-db-rt" })
   igw_tags        = merge(local.tags, { Name = "${var.env}-igw" })
+  ngw_tags        = merge(local.tags, { Name = "${var.env}-ngw" })
 
 }
 
