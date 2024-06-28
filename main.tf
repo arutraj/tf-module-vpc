@@ -11,6 +11,21 @@ resource "aws_subnet" "web" {
   availability_zone = var.azs[count.index]
 }
 
+resource "aws_route_table" "web" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block                = var.default_vpc_cidr
+    vpc_peering_connection_id = aws_vpc_peering_connection.main.id
+  }
+}
+
+resource "aws_route_table_association" "web" {
+  count          = length(aws_subnet.web.*.id)
+  route_table_id = aws_route_table.web.id
+  subnet_id      = aws_subnet.web.*.id[count.index]
+}
+
 resource "aws_subnet" "app" {
   count             = length(var.app_subnet_cidr)
   vpc_id            = aws_vpc.main.id
@@ -19,12 +34,42 @@ resource "aws_subnet" "app" {
   availability_zone = var.azs[count.index]
 }
 
+resource "aws_route_table" "app" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block                = var.default_vpc_cidr
+    vpc_peering_connection_id = aws_vpc_peering_connection.main.id
+  }
+}
+
+resource "aws_route_table_association" "app" {
+  count          = length(aws_subnet.app.*.id)
+  route_table_id = aws_route_table.app.id
+  subnet_id      = aws_subnet.app.*.id[count.index]
+}
+
 resource "aws_subnet" "db" {
   count             = length(var.db_subnet_cidr)
   vpc_id            = aws_vpc.main.id
   cidr_block        = var.db_subnet_cidr[count.index]
   tags              = local.db_subnet_tags
   availability_zone = var.azs[count.index]
+}
+
+resource "aws_route_table" "db" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block                = var.default_vpc_cidr
+    vpc_peering_connection_id = aws_vpc_peering_connection.main.id
+  }
+}
+
+resource "aws_route_table_association" "db" {
+  count          = length(aws_subnet.db.*.id)
+  route_table_id = aws_route_table.db.id
+  subnet_id      = aws_subnet.db.*.id[count.index]
 }
 
 resource "aws_vpc_peering_connection" "main" {
