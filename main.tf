@@ -7,15 +7,15 @@ resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 }
 
-resource "aws_subnet" "web" {
-  count             = length(var.web_subnet_cidr)
+resource "aws_subnet" "lb" {
+  count             = length(var.lb_subnet_cidr)
   vpc_id            = aws_vpc.main.id
-  cidr_block        = var.web_subnet_cidr[count.index]
+  cidr_block        = var.lb_subnet_cidr[count.index]
   tags              = local.web_subnet_tags
   availability_zone = var.azs[count.index]
 }
 
-resource "aws_route_table" "web" {
+resource "aws_route_table" "lb" {
   vpc_id = aws_vpc.main.id
   tags   = local.web_rt_tags
 
@@ -37,26 +37,26 @@ resource "aws_eip" "main" {
 
 resource "aws_nat_gateway" "main" {
   allocation_id = aws_eip.main.id
-  subnet_id     = aws_subnet.web.*.id[0]
+  subnet_id     = aws_subnet.lb.*.id[0]
   tags          = local.ngw_tags
 }
 
 
-resource "aws_route_table_association" "web" {
-  count          = length(aws_subnet.web.*.id)
-  route_table_id = aws_route_table.web.id
-  subnet_id      = aws_subnet.web.*.id[count.index]
+resource "aws_route_table_association" "lb" {
+  count          = length(aws_subnet.lb.*.id)
+  route_table_id = aws_route_table.lb.id
+  subnet_id      = aws_subnet.lb.*.id[count.index]
 }
 
-resource "aws_subnet" "app" {
-  count             = length(var.app_subnet_cidr)
+resource "aws_subnet" "eks" {
+  count             = length(var.eks_subnet_cidr)
   vpc_id            = aws_vpc.main.id
-  cidr_block        = var.app_subnet_cidr[count.index]
+  cidr_block        = var.eks_subnet_cidr[count.index]
   tags              = local.app_subnet_tags
   availability_zone = var.azs[count.index]
 }
 
-resource "aws_route_table" "app" {
+resource "aws_route_table" "eks" {
   vpc_id = aws_vpc.main.id
   tags   = local.app_rt_tags
 
@@ -72,10 +72,10 @@ resource "aws_route_table" "app" {
 
 }
 
-resource "aws_route_table_association" "app" {
-  count          = length(aws_subnet.app.*.id)
-  route_table_id = aws_route_table.app.id
-  subnet_id      = aws_subnet.app.*.id[count.index]
+resource "aws_route_table_association" "eks" {
+  count          = length(aws_subnet.eks.*.id)
+  route_table_id = aws_route_table.eks.id
+  subnet_id      = aws_subnet.eks.*.id[count.index]
 }
 
 resource "aws_subnet" "db" {
